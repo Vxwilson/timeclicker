@@ -191,9 +191,9 @@ created by vxix in 2021.
 
         popup.add_separator()
 
-        selection_frame = ttk.LabelFrame(profile_window, text="Add positions")
-        selection_frame.grid(row=0, column=0, sticky="new")
-        selection_frame.grid_rowconfigure([0, 1], weight=1)
+        selection_frame = ttk.LabelFrame(profile_window, text="Positions", width=500)
+        selection_frame.grid(row=0, column=0, sticky="nsew", rowspan=3)
+        selection_frame.grid_rowconfigure([0, 1, 2, 3, 4, 5, 6], weight=1)
         selection_frame.grid_columnconfigure([0, 1], weight=1)
 
         pos_idx = 0
@@ -219,7 +219,7 @@ created by vxix in 2021.
             pos_idx += 1
 
         add_pos_button = ttk.Button(selection_frame, text="Add", command=lambda: [])
-        add_pos_button.grid(row=0, column=0)
+        add_pos_button.grid(row=0, column=0, sticky="new")
 
         add_pos_button.bind("<Control-t>", lambda e: get_point())
         # add_pos_button.bind("<Button-1>", lambda e: get_point())
@@ -227,12 +227,15 @@ created by vxix in 2021.
         technical_frame = ttk.LabelFrame(profile_window, text="Options")
         technical_frame.grid(row=0, column=1, sticky="new")
         technical_frame.grid_rowconfigure([0, 1, 2], weight=1)
-        technical_frame.grid_columnconfigure([0, 1], weight=1)
+        technical_frame.grid_columnconfigure([0], weight=1)
 
         task_label_var = tk.StringVar()
         task_label_var.set("label")  # todo add label index automatically
-        task_label = ttk.Entry(technical_frame, textvariable=task_label_var)
-        task_label.grid(row=0, column=0, sticky="new")
+
+        task_label_label = ttk.Label(technical_frame, text="Save name")
+        task_label_label.grid(row=0, column=0, sticky="new")
+        task_label = ttk.Entry(technical_frame, width=15, textvariable=task_label_var)
+        task_label.grid(row=0, column=0, sticky="new", padx=120)
 
         start_idx = tk.IntVar()
         start_idx.set(1)
@@ -246,7 +249,7 @@ created by vxix in 2021.
         loop.set(True)
 
         repeat_checkbox = ttk.Checkbutton(technical_frame, text="Loop", variable=loop)
-        repeat_checkbox.grid(row=2, column=1, sticky="w")
+        repeat_checkbox.grid(row=2, column=0, sticky="w")
         # todo show iteration spinbox after 'loop' is disabled
         #
         # iteration_label = ttk.Label(master=technical_frame, text="Iteration:")
@@ -259,18 +262,20 @@ created by vxix in 2021.
         schedule_frame.grid(row=1, column=1, sticky="new")
 
         scheduler_label = ttk.Label(master=schedule_frame, text="Schedule:")
-        scheduler_label.grid(row=2, column=0, sticky="w")
-        # todo check possible bug that occur when 00 is passed instead of 0
+        scheduler_label.grid(row=0, column=0, sticky="w")
         scheduler_hour = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=23, increment=1,
                                      textvariable=self.hour, wrap=True)
-        scheduler_hour.grid(row=2, column=1, sticky="w", padx=0)
+        scheduler_hour.grid(row=0, column=1, sticky="w", padx=0)
         scheduler_minute = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=59, increment=1,
                                        textvariable=self.min, wrap=True)
-        scheduler_minute.grid(row=2, column=1, sticky="w", padx=60)
+        scheduler_minute.grid(row=0, column=1, sticky="w", padx=65)
         scheduler_hourlabel = ttk.Label(schedule_frame, text="Hours")
-        scheduler_hourlabel.grid(row=2, column=1, sticky="w", padx=120)
+        scheduler_hourlabel.grid(row=0, column=1, sticky="w", padx=125)
 
-        profile_window.grid_rowconfigure(0, weight=1)
+        schedule_frame.grid_rowconfigure([0], weight=1)
+        schedule_frame.grid_columnconfigure([0, 1], weight=1)
+
+        profile_window.grid_rowconfigure([0, 1, 2], weight=1)
         profile_window.grid_columnconfigure(0, weight=1)
 
         def add_profile(pos_details, month=1, day=1, hour=12, minute=0, second=0):
@@ -293,8 +298,7 @@ created by vxix in 2021.
             self.profiles = self.load_profiles()
             self.refresh_profiles()
 
-        # todo add instant start button
-        start_button = ttk.Button(master=profile_window, text="Start schedule",
+        start_button = ttk.Button(master=profile_window, text="Start schedule", width=15,
                                   command=lambda: [add_profile(pos_details=positions, hour=scheduler_hour.get(),
                                                                minute=scheduler_minute.get()),
                                                    self.scheduler.add_schedule(idx=len(self.profiles) - 1,
@@ -303,12 +307,12 @@ created by vxix in 2021.
                                                                                minute=self.min.get(),
                                                                                hour=self.hour.get()),
                                                    self.update_schedule(), profile_window.destroy()])
-        start_button.grid(row=2, column=0, sticky="ews")
-        apply_button = ttk.Button(master=profile_window, text="Save profile",
+        start_button.grid(row=2, column=1, sticky="ws")
+        apply_button = ttk.Button(master=profile_window, text="Save profile", width=15,
                                   command=lambda: [
                                       add_profile(pos_details=positions, hour=scheduler_hour.get(),
                                                   minute=scheduler_minute.get())])
-        apply_button.grid(row=2, column=1, sticky="ews")
+        apply_button.grid(row=2, column=1, sticky="es")
 
         # input_text.bind("<Button-3>", menu_popup)
 
@@ -342,11 +346,11 @@ created by vxix in 2021.
 
             for index, profile in enumerate(self.profiles):
                 nested_menu.add_command(label=profile["label"], command=partial(self.open_profile, index))
-            # nested_menu.add_command(label="See all", command=list_links) todo add see all link function
             self.actionmenu.add_cascade(label="Execute profile", menu=nested_menu)
         else:
             pass
 
+    # todo add scrollable widget
     def open_profile(self, index):
         profile_window = tk.Toplevel(root)
         profile_window.title("Start auto clicker")
@@ -389,15 +393,14 @@ created by vxix in 2021.
 
         scheduler_label = ttk.Label(master=schedule_frame, text="Schedule:")
         scheduler_label.grid(row=2, column=0, sticky="w")
-        # todo check possible bug that occur when 00 is passed instead of 0
         scheduler_hour = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=23, increment=1,
                                      textvariable=self.hour, wrap=True)
         scheduler_hour.grid(row=2, column=1, sticky="w", padx=0)
         scheduler_minute = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=59, increment=1,
                                        textvariable=self.min, wrap=True)
-        scheduler_minute.grid(row=2, column=1, sticky="w", padx=60)
+        scheduler_minute.grid(row=2, column=1, sticky="w", padx=65)
         scheduler_hourlabel = ttk.Label(schedule_frame, text="Hours")
-        scheduler_hourlabel.grid(row=2, column=1, sticky="w", padx=120)
+        scheduler_hourlabel.grid(row=2, column=1, sticky="w", padx=125)
 
         start_button = ttk.Button(master=profile_window, text="Execute instantly",
                                   command=lambda: [self.start_profile(index, start_idx.get() - 1, loop.get())])
@@ -427,7 +430,6 @@ created by vxix in 2021.
         self.terminate_click = False
         n = 1  # used to make sure start index check is only triggered first loop
         while True:
-            # todo fix not responding bug
             for idx, pos in enumerate(positions):
                 if self.terminate_click is True:
                     return True
@@ -573,7 +575,7 @@ root.tk.call('source', 'Source/Resources/Style/azure.tcl')
 root.tk.call("set_theme", "dark")
 default_font.configure(size=11)
 # root.geometry("1050x600")
-root.title("Timeclicker v0.1.0a")
+root.title("Timeclicker v0.1.2a")
 root.iconphoto(False, tk.PhotoImage(file='Source/Resources/Icon/gradient_less_saturated.png'))
 root.resizable(False, False)
 app = Application(master=root)
