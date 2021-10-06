@@ -8,6 +8,7 @@ import keyboard
 import datetime
 import pickle
 import pyautogui
+from infi.systray import SysTrayIcon
 from functools import partial
 
 import Source.scheduler as scheduler
@@ -88,6 +89,9 @@ your cursor to the desired position and press Control-T.
 Saved profiles can be executed from Actions > Execute Profile.
 
 To terminate an ongoing task, press Control-X. To terminate looping for an ongoing task, press Alt-X.
+
+NOTE: for scheduled tasks to work, the window must not be closed. Instead, you can minimize it to the system tray.
+
 Please refer to GitHub readme.md for more information.
 created by vxix in 2021.
         """
@@ -204,12 +208,12 @@ created by vxix in 2021.
                 .grid(row=pos_idx + 1, column=0, sticky="new")
 
             delay = tk.IntVar()
-            delay.set(1000)
+            delay.set(1001)
 
             delays.append(delay)
             positions.append([pos.x, pos.y])
 
-            ttk.Spinbox(selection_frame, width=8, from_=1, to=100000, wrap=True, textvariable=delays[pos_idx]) \
+            ttk.Spinbox(selection_frame, width=8, from_=1, to=100000, increment=500, wrap=True, textvariable=delays[pos_idx]) \
                 .grid(row=pos_idx + 1, column=1, sticky="new")
 
             pos_idx += 1
@@ -260,7 +264,7 @@ created by vxix in 2021.
         scheduler_hour = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=23, increment=1,
                                      textvariable=self.hour, wrap=True)
         scheduler_hour.grid(row=2, column=1, sticky="w", padx=0)
-        scheduler_minute = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=59, increment=15,
+        scheduler_minute = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=59, increment=1,
                                        textvariable=self.min, wrap=True)
         scheduler_minute.grid(row=2, column=1, sticky="w", padx=60)
         scheduler_hourlabel = ttk.Label(schedule_frame, text="Hours")
@@ -389,7 +393,7 @@ created by vxix in 2021.
         scheduler_hour = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=23, increment=1,
                                      textvariable=self.hour, wrap=True)
         scheduler_hour.grid(row=2, column=1, sticky="w", padx=0)
-        scheduler_minute = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=59, increment=15,
+        scheduler_minute = ttk.Spinbox(master=schedule_frame, width=5, from_=0, to=59, increment=1,
                                        textvariable=self.min, wrap=True)
         scheduler_minute.grid(row=2, column=1, sticky="w", padx=60)
         scheduler_hourlabel = ttk.Label(schedule_frame, text="Hours")
@@ -513,19 +517,19 @@ created by vxix in 2021.
                 pass
 
     def hide_window(self):
-        # def clicked(icon=None):
-        #     self.show_window()
-        #     try:
-        #         systray.shutdown()
-        #     except:
-        #         print()
-        #         pass
+        def clicked(icon=None):
+            self.show_window()
+            try:
+                systray.shutdown()
+            except:
+                print()
+                pass
 
         root.withdraw()
-        # menu_options = (("Show window", None, clicked),)
-        # systray = SysTrayIcon("Source/Resources/Icon/picturexviewer.ico", "Cappribot", menu_options,
-        #                       default_menu_index=0)
-        # systray.start()
+        menu_options = (("Show window", None, clicked),)
+        systray = SysTrayIcon("Source/Resources/Icon/picturexviewer.ico", "Cappribot", menu_options,
+                              default_menu_index=0)
+        systray.start()
 
     def show_window(self):
         root.deiconify()
